@@ -8,8 +8,8 @@
 // temperature sensors
 #include <OneWire.h> 
 #include <DallasTemperature.h>
-#define ONE_WIRE_BUS A14
-#define TWO_WIRE_BUS A0
+#define ONE_WIRE_BUS 28
+#define TWO_WIRE_BUS 29
 
 // constants
 #define MIN_PH 6.5
@@ -29,8 +29,8 @@ int counterB = 1;
 
 
 // button vars
-const int buttonPinA = 2;
-const int buttonPinB = 3;
+// const int buttonPinA = 2;
+// const int buttonPinB = 3;
 int buttonStateA;
 int buttonStateB;
 
@@ -39,50 +39,58 @@ bool stpA = true;
 bool stpB = true;
 
 // left chamber
-const int sensorpHA = A15;
-const int sensorTempA = A14;
-const int motorSpeedA = 6; // stirring
-const int motorDir1A = 36; // right
-const int motorDir2A = 37; // left
-const int baseSpeedA = 9; // right pink lid
-const int baseDir1A = 30; // right
-const int baseDir2A = 31; // left
-const int outflowSpeedA = 8; // left pink lid
-const int outflowDir1A = 32; // right 
-const int outflowDir2A = 33; // left
-const int feedSpeedA = 7; // blue lid
-const int feedDir1A = 34; // right
-const int feedDir2A = 35; // left
+const int sensorpHA = A8;
+const int sensorTempA = 29;
+//BLACK
+const int motorSpeedA = 9; // ENA
+const int motorDir1A = 36; // IN2
+const int motorDir2A = 37; // IN1
+//GREEN
+const int baseSpeedA = 1; // dummy numbers
+const int baseDir1A = 2; // dummy numbers
+const int baseDir2A = 3; // dummy numbers
+/* using the pH pump for outflow instead*/
+const int outflowSpeedA = 13; // left pink lid
+const int outflowDir1A = 52; // right 
+const int outflowDir2A = 53; // left
+//YELLOW
+const int feedSpeedA = 12; // blue lid
+const int feedDir1A = 48; // right
+const int feedDir2A = 49; // left
 
 // right chamber
-const int sensorpHB = A1;
-const int sensorTempB = A12;
-const int motorSpeedB = 13; // stirring
-const int motorDir1B = 24; // right
-const int motorDir2B = 25; // left
-const int baseSpeedB = 11; // right pink lid
-const int baseDir1B = 26; // right
-const int baseDir2B = 27; // left
-const int outflowSpeedB = 10; // left pink lid
-const int outflowDir1B = 28; // right 
-const int outflowDir2B = 29; // left
-const int feedSpeedB = 12; // blue lid
-const int feedDir1B = 22; // right
-const int feedDir2B = 23; // left
+const int sensorpHB = A9;
+const int sensorTempB = 28;
+//RED
+const int motorSpeedB = 8; // ENB
+const int motorDir1B = 33; // IN4
+const int motorDir2B = 32; // IN3
+//WHITE
+const int baseSpeedB = 4; // dummy numbers
+const int baseDir1B = 5; // dummy numbers
+const int baseDir2B = 6; // dummy numbers
+/* using the pH pump for outflow instead*/
+const int outflowSpeedB = 11; // left pink lid
+const int outflowDir1B = 45; // right 
+const int outflowDir2B = 44; // left
+//BLUE
+const int feedSpeedB = 10; // blue lid
+const int feedDir1B = 40; // right
+const int feedDir2B = 41; // left
 
 // values
 float pHA = 0;
 float pHB = 0;
 const int speed = 255;
 
-int sensorO2 = A13;
+int sensorO2 = A0;
 Gravity_DO DO = Gravity_DO(sensorO2);
 
 uint8_t user_bytes_received = 0;
 const uint8_t bufferlen = 32;
 char user_data[bufferlen];
 
-const int rs = 48, en = 49, d4 = 52, d5 = 53, d6 = 50, d7 = 51;
+const int rs = 5, en = 4, d4 = 22, d5 = 23, d6 = 24, d7 = 25;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 OneWire oneWire(ONE_WIRE_BUS);
@@ -128,8 +136,8 @@ void setup() {
     tempSensorB.begin(); 
 
 //     control button
-    pinMode(buttonPinA, INPUT);
-    pinMode(buttonPinB, INPUT);
+    // pinMode(buttonPinA, INPUT);
+    // pinMode(buttonPinB, INPUT);
 
     // digital pins
     pinMode(motorDir1A,OUTPUT);
@@ -176,8 +184,8 @@ void setup() {
 
 void loop() {
     // check off button
-    buttonStateA = digitalRead(buttonPinA);
-    buttonStateB = digitalRead(buttonPinB);
+    buttonStateA = HIGH;
+    buttonStateB = HIGH;
     if (buttonStateA == HIGH) {
       stpA = !stpA;
     }
@@ -203,7 +211,7 @@ void loop() {
       analogWrite(motorSpeedA, 0);
     } else {
       analogWrite(motorSpeedA, speed);
-//      analogWrite(outflowSpeedA, speed);
+      analogWrite(outflowSpeedA, speed);
       Serial.println("spinner A on");
       // execute repeatedly
       // check pH
@@ -249,7 +257,7 @@ void loop() {
       analogWrite(motorSpeedB, 0);
     } else {
       analogWrite(motorSpeedB, speed);
-//      analogWrite(outflowSpeedB, speed);
+      analogWrite(outflowSpeedB, speed);
       // check pH
       unsigned long avgpHB = 0;
       for (int i = 0; i < 9; i++) {
@@ -294,7 +302,7 @@ void loop() {
     tempSensorA.requestTemperatures(); // Send the command to get temperature readings
     tempSensorB.requestTemperatures(); // Send the command to get temperature readings  
     float tempA = tempSensorA.getTempCByIndex(0);
-    float tempB = tempSensorB.getTempCByIndex(0); 
+    float tempB = tempSensorB.getTempCByIndex(0) + 127 + 23; 
     Serial.print(tempA); 
     Serial.print(", ");
     Serial.print(tempB); 
